@@ -29,6 +29,7 @@ genre_schema = GenreSchema()
 genres_schema = GenreSchema(many=True)
 
 
+# создаем модели
 class Movie(db.Model):
     __tablename__ = 'movie'
     id = db.Column(db.Integer, primary_key=True)
@@ -55,10 +56,12 @@ class Genre(db.Model):
     name = db.Column(db.String(255))
 
 
+# делаем Class Based Views
 @movie_ns.route('/')
 class MoviesViews(Resource):
 
     def get(self):
+        # добавляем фильтры
         if request.args.get('director_id', None) and request.args.get('genre_id', None):
             all_movies = db.session.query(Movie).\
                 filter(Movie.director_id == request.args['director_id'], Movie.genre_id == request.args['genre_id'])
@@ -67,7 +70,7 @@ class MoviesViews(Resource):
         elif request.args.get('genre_id', None):
             all_movies = db.session.query(Movie).filter(Movie.genre_id == request.args['genre_id'])
         else:
-            all_movies = Movie.query.all()
+            all_movies = db.session.query(Movie).all()
         return movies_schema.dump(all_movies), 200
 
     def post(self):
